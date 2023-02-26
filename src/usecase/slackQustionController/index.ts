@@ -1,4 +1,4 @@
-import SlackPostQuestionService from "../../domain/slackPostQuestionService/repository";
+import SlackPostQuestionService from "../../domain/slackPostQuestionService";
 import {
   BlockTypes,
   GenerateBlockConfig,

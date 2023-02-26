@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "clasp push",
     "clear": "find src -type f -name '*.js' -or -name '*.d.ts' | xargs rm"
   },
   "keywords": [],

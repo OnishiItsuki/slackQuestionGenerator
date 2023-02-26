@@ -1,4 +1,3 @@
-import * as config from "../../config/slack";
 import SlackPostQuestionService from "../../domain/slackPostQuestionService/repository";
 import {
   BlockTypes,
@@ -11,7 +10,7 @@ type Payload = Record<string, any>;
 
 export default class SlackQuestionController {
   private _isOpenModal: boolean = false;
-  public OPEN_MODAL_URL: string = config.POST_OPEN_MODAL_URL;
+  public OPEN_MODAL_URL: string = "https://slack.com/api/views.open";
 
   private _questionTitle: string = "";
   private _questionBlockConfigList: GenerateBlockConfig<BlockTypes>[] = [];

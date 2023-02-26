@@ -1,19 +1,20 @@
 import * as config from "../../config/slack";
 import SlackPostQuestionService from "../../domain/slackPostQuestionService/repository";
-import { IGenerateBlockConfig } from "../../domain/slackQuestionBlockGenerator/models";
-import SlackQuestionBlockGenerator from "../../domain/slackQuestionBlockGenerator/repository";
+import {
+  BlockTypes,
+  GenerateBlockConfig,
+  GenerateBlockParams,
+} from "../../domain/slackQuestionBlockGenerator/models";
+import SlackQuestionBlockGenerator from "../../domain/slackQuestionBlockGenerator";
 
-type QuestionBlock = Record<string, any>;
+type Payload = Record<string, any>;
 
 export default class SlackQuestionController {
   private _isOpenModal: boolean = false;
-
-  public SUBMIT_LABEL: string = "確定";
-  public CLOSE_LABEL: string = "キャンセル";
   public OPEN_MODAL_URL: string = config.POST_OPEN_MODAL_URL;
 
   private _questionTitle: string = "";
-  private _questionBlockConfigList: QuestionBlock[] = [];
+  private _questionBlockConfigList: GenerateBlockConfig<BlockTypes>[] = [];
 
   private _slackPostService: SlackPostQuestionService;
   private _slackQuestionBlockGenerator: SlackQuestionBlockGenerator;
@@ -28,10 +29,38 @@ export default class SlackQuestionController {
     return `${blockId}_id`;
   }
 
-  private _parsePayload4Result(payload: any): void {
+  private _getValueFromObj = (
+    obj: Record<string, any>,
+    valueName: string
+  ): string => {
+    const actionId = this._createActionId(valueName);
+    const valueObj = obj.view.state.values[valueName][actionId];
+
+    switch (valueObj.type) {
+      case "static_select":
+        return valueObj?.selected_option.value;
+      case "plain_text_input":
+        return valueObj.value;
+      case "number_input":
+        return valueObj.value;
+      case "datepicker":
+        return valueObj.value;
+      default:
+        throw new Error("unexpected vale type: ", valueObj.type);
+    }
+  };
+
+  private _parsePayload(payload: Payload): void {
     if (payload?.parameter?.parameter?.payload) {
-      const obj = payload.parameter.parameter.payload;
-      this._result = { ...obj };
+      const valueObjects = JSON.parse(
+        decodeURIComponent(payload.parameter.parameter.payload)
+      );
+
+      const result: Record<string, string> = {};
+      Object.keys(valueObjects).map((key) => {
+        result[key] = this._getValueFromObj(valueObjects, key);
+      });
+      this._result = result;
     }
     this._result = null;
   }
@@ -54,7 +83,7 @@ export default class SlackQuestionController {
       this._createActionId
     );
 
-    this._parsePayload4Result(payload);
+    this._parsePayload(payload || {});
   }
 
   private _checkOpenModal(): void | never {
@@ -74,12 +103,21 @@ export default class SlackQuestionController {
     return this._questionTitle;
   }
 
-  public setQuestionBlocks<T>(configs: IGenerateBlockConfig[]) {
+  get questionBlockGenerator(): SlackQuestionBlockGenerator {
+    return this._slackQuestionBlockGenerator;
+  }
+
+  public setQuestionBlocks<T extends BlockTypes>(
+    configs: {
+      blockType: T;
+      params: GenerateBlockParams<T>;
+    }[]
+  ) {
     this._checkOpenModal();
     this._questionBlockConfigList = configs;
   }
 
-  get questionBlocks(): QuestionBlock[] {
+  get questionBlocks(): GenerateBlockConfig<BlockTypes>[] {
     return this._questionBlockConfigList;
   }
 
@@ -87,7 +125,9 @@ export default class SlackQuestionController {
     return this._result;
   }
 
-  private _generateQuestionView() {
+  public openModal() {
+    this._checkOpenModal();
+
     if (!this._questionTitle) {
       this._throwError(`unexpected title: ${this._questionTitle}`);
     }
@@ -101,38 +141,11 @@ export default class SlackQuestionController {
       );
     }
 
-    const questionBlocks = this._questionBlockConfigList.map((config) =>
-      // TODO
-      this._slackQuestionBlockGenerator.generateBlock(config as any)
+    const params = this._slackQuestionBlockGenerator.generate(
+      this._questionTitle,
+      this._questionBlockConfigList
     );
 
-    const block = {
-      type: "modal",
-      title: {
-        type: "plain_text",
-        text: this._questionTitle,
-        emoji: true,
-      },
-      submit: {
-        type: "plain_text",
-        text: this.SUBMIT_LABEL,
-        emoji: true,
-      },
-      close: {
-        type: "plain_text",
-        text: this.CLOSE_LABEL,
-        emoji: true,
-      },
-      blocks: questionBlocks,
-    };
-
-    return JSON.stringify(block);
-  }
-
-  public openModal() {
-    this._checkOpenModal();
-
-    const params = this._generateQuestionView();
     this._slackPostService.post(params);
 
     this._isOpenModal = true;

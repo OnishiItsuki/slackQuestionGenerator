@@ -1,7 +1,7 @@
 import { QuestionBlockPropsBase } from "./models";
 
 export type GenerateSelectOptionInput = {
-  text: string;
+  label: string;
   value: string;
 };
 
@@ -20,7 +20,7 @@ const _generateSelectOptions = (
     return {
       text: {
         type: "plain_text",
-        text: option.text,
+        text: option.label,
       },
       value: option.value,
     };

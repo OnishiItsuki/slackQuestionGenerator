@@ -9,9 +9,11 @@ export interface IDatepickerBlockElement extends IDatepickerBlockParams {
   type: "datepicker";
 }
 
-export default (params: IDatepickerBlockParams): IDatepickerBlockElement => {
+const createDatepickerBlock = (params: IDatepickerBlockParams): IDatepickerBlockElement => {
   return {
     ...params,
     type: "datepicker",
   };
 };
+
+export {createDatepickerBlock};

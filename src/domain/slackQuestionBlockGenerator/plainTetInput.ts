@@ -12,9 +12,11 @@ export interface IPlainTextInputBlockElement extends IPlainTextInputParams {
   type: "plain_text_input";
 }
 
-export default (params: IPlainTextInputParams): IPlainTextInputBlockElement => {
+const createPlainTextBlock =  (params: IPlainTextInputParams): IPlainTextInputBlockElement => {
   return {
     ...params,
     type: "plain_text_input",
   };
 };
+
+export {createPlainTextBlock};

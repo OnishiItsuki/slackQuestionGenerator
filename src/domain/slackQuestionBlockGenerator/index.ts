@@ -4,10 +4,10 @@ import {
   GenerateBlockParams,
   SlackQuestionBlock,
 } from "./models";
-import datepicker from "./datepicker";
-import numberInput from "./numberInput";
-import plainTetInput from "./plainTetInput";
-import staticSelect, { IStaticSelectQuestionBlockParams } from "./staticSelect";
+import {createDatepickerBlock} from "./datepicker";
+import {createNumberInputBlock} from "./numberInput";
+import {createPlainTextBlock} from "./plainTetInput";
+import {createStaticSelectBlock, IStaticSelectQuestionBlockParams} from "./staticSelect";
 
 type ActionTypeFormatter = (actionType: string) => string;
 
@@ -52,18 +52,18 @@ class SlackQuestionBlockGenerator {
 
     switch (props.blockType) {
       case "plain_text_input":
-        element = plainTetInput(props.params);
+        element = createPlainTextBlock(props.params);
         break;
       case "number_input":
-        element = numberInput(props.params);
+        element = createNumberInputBlock(props.params);
         break;
       case "static_select":
-        element = staticSelect(
+        element = createStaticSelectBlock(
           props.params as IStaticSelectQuestionBlockParams
         );
         break;
       case "datepicker":
-        element = datepicker(props.params);
+        element = createDatepickerBlock(props.params);
         break;
       default:
         return this._throwError(`unexpected blockType: ${props.blockType}`);
@@ -103,4 +103,4 @@ class SlackQuestionBlockGenerator {
   }
 }
 
-export default SlackQuestionBlockGenerator;
+export {SlackQuestionBlockGenerator};

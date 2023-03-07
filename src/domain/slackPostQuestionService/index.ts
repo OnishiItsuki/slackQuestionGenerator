@@ -35,4 +35,4 @@ class SlackPostQuestionService {
   }
 }
 
-export default SlackPostQuestionService;
+export {SlackPostQuestionService};

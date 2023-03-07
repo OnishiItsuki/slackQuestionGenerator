@@ -38,7 +38,7 @@ export interface IStaticSelectQuestionBlockElement
   options: GenerateSelectOptionOutput[];
 }
 
-export default (
+const createStaticSelectBlock = (
   config: IStaticSelectQuestionBlockParams
 ): IStaticSelectQuestionBlockElement => {
   const tmp = _generateSelectOptions(config.options);
@@ -48,3 +48,5 @@ export default (
     options: tmp,
   };
 };
+
+export {createStaticSelectBlock};

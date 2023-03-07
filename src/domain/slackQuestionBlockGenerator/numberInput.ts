@@ -12,9 +12,11 @@ export interface INumberInputBlockElement extends INumberInputBlockParams {
   type: "number_input";
 }
 
-export default (params: INumberInputBlockParams): INumberInputBlockElement => {
+const createNumberInputBlock = (params: INumberInputBlockParams): INumberInputBlockElement => {
   return {
     ...params,
     type: "number_input",
   };
 };
+
+export {createNumberInputBlock};

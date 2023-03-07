@@ -1,14 +1,14 @@
-import SlackPostQuestionService from "../../domain/slackPostQuestionService";
+import {SlackPostQuestionService} from "../../domain/slackPostQuestionService";
 import {
   BlockTypes,
   GenerateBlockConfig,
   GenerateBlockParams,
 } from "../../domain/slackQuestionBlockGenerator/models";
-import SlackQuestionBlockGenerator from "../../domain/slackQuestionBlockGenerator";
+import {SlackQuestionBlockGenerator} from "../../domain/slackQuestionBlockGenerator";
 
 type Payload = Record<string, any>;
 
-export default class SlackQuestionController {
+class SlackQuestionController {
   private _isOpenModal: boolean = false;
   public OPEN_MODAL_URL: string = "https://slack.com/api/views.open";
   private _SLACK_TOKEN: string;
@@ -151,3 +151,5 @@ export default class SlackQuestionController {
     return ContentService.createTextOutput();
   }
 }
+
+export default SlackQuestionController;
